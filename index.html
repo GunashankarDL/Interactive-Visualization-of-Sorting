@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Interactive Sorting Visualizer</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef8f2;--cd:#fff;--tx:#12352a;--mu:#5c7a6e;--bd:#cfe6da;--g:#0f9d6b;--gl:#d3f5e5;--cm:#f5b700;--sw:#e5484d;--ky:#9b5de5;--un:#9aa8a1;--bl:#dff0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b16;--cd:#17261f;--tx:#e4f3ec;--mu:#92b3a5;--bd:#2a4337;--g:#2ec58e;--gl:#16382b;--bl:#16303f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1b16;--cd:#17261f;--tx:#e4f3ec;--mu:#92b3a5;--bd:#2a4337;--g:#2ec58e;--gl:#16382b;--bl:#16303f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Kalam,"Segoe UI",system-ui,sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--cd);border-bottom:1px solid var(--bd);padding:10px 16px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--cd);z-index:6}
+h1{font-size:21px;margin:0;color:var(--g)}h1+p{margin:0 0 6px;color:var(--g);font-size:14px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+select,input[type=text],button{font:inherit;color:var(--tx);background:var(--cd);border:2px solid var(--bd);border-radius:10px;padding:6px 10px}
+select{flex:1;min-width:200px;border-color:var(--g)}
+main{max-width:640px;margin:0 auto;padding:14px 16px 90px;display:grid;gap:14px}
+.c{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:14px}
+h2{font-size:18px;margin:0 0 8px}h3{font-size:15px;margin:0 0 4px}
+.sm{font-size:13px;color:var(--mu)}
+button{cursor:pointer}button.p{background:var(--g);border-color:var(--g);color:#fff;font-weight:700}
+button.r{color:var(--sw);border-color:var(--sw)}button.s{font-size:13px;padding:4px 10px}
+input[type=text]{width:100%;box-sizing:border-box;font-family:ui-monospace,monospace}
+input[type=range]{accent-color:var(--g)}
+#msg{border-left:5px solid var(--g);background:var(--gl)}
+.boxes{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:8px 0}
+.bx{width:50px;text-align:center;font-size:12px;color:var(--mu)}
+.bx b{display:block;height:46px;line-height:42px;border:3px solid var(--un);border-radius:12px;font-size:19px;color:var(--tx);background:var(--cd);transition:all .2s}
+.bx.cm b{border-color:var(--cm);background:#fff6d0;color:#222;transform:translateY(-6px)}
+.bx.sw b{border-color:var(--sw);background:#ffe0e1;color:#222;transform:translateY(-6px)}
+.bx.ky b{border-color:var(--ky);background:#efe2ff;color:#222}
+.bx.so b{border-color:var(--g);background:var(--gl)}
+.lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mu);border-top:1px solid var(--bd);padding-top:8px}
+.lg i{display:inline-block;width:12px;height:12px;border:2px solid;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.m{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.m div{border:2px solid var(--bd);background:var(--gl);border-radius:12px;text-align:center;padding:6px;font-size:12px;text-transform:uppercase;color:var(--mu)}
+.m b{display:block;font-size:26px;color:var(--tx)}
+table{width:100%;border-collapse:collapse;text-align:center;font-size:14px}th,td{padding:6px 4px}th{background:var(--gl)}
+.tg{display:inline-block;background:var(--bl);border:1px solid var(--bd);border-radius:8px;padding:0 8px;font-size:13px}
+#rc{font-family:ui-monospace,monospace;font-size:13px;background:var(--bl);border-radius:10px;padding:8px;margin-top:8px}
+#code{font-family:ui-monospace,monospace;font-size:13px;background:var(--bg);border:1px solid var(--bd);border-radius:10px;max-height:240px;overflow:auto;position:relative}
+#code div{white-space:pre;padding:1px 10px;border-left:4px solid transparent}
+#code div.on{background:var(--gl);border-color:var(--g);font-weight:700}
+#code span{display:inline-block;width:22px;color:var(--mu)}
+.an{background:var(--gl);border-left:5px solid var(--g);border-radius:10px;padding:10px;margin:8px 0}
+.bu{background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:10px;margin-top:10px}
+.bu ul{margin:4px 0 0;padding-left:20px}.ok{border-top:4px solid var(--g);background:var(--gl)}.no{border-top:4px solid var(--sw)}
+#fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--g);color:#fff;border:0;border-radius:30px;padding:12px 20px;font-weight:700;box-shadow:0 4px 14px #0004;z-index:8}
+#chat{position:fixed;right:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100% - 24px));z-index:8;display:none;flex-direction:column;box-shadow:0 6px 24px #0005}
+#log{height:220px;overflow:auto;font-size:14px;display:flex;flex-direction:column;gap:6px;margin:8px 0}
+#log p{margin:0;padding:6px 10px;border-radius:10px;background:var(--gl);max-width:88%}#log p.u{align-self:flex-end;background:var(--g);color:#fff}
+</style></head><body>
+<header><h1>Interactive Sorting Visualizer</h1><p>Step-by-step algorithm animation, real-life examples &amp; complexity analysis</p>
+<div class="row"><span class="sm">Select Algorithm:</span><select id="alg"></select></div></header>
+<main>
+<section class="c"><h2>📥 Custom Array Input</h2><div class="sm">Format: comma or space-separated integers (e.g. 64, 34, 25, 12, 22, 11, 90)</div>
+<input id="inp" type="text" style="margin:8px 0"><div class="row"><button class="p" id="apply">Apply Array</button><span class="sm" id="err"></span></div>
+<div class="row" style="margin-top:8px"><span class="sm">Quick Presets:</span><button class="s" data-p="rand">🎲 Random</button><button class="s" data-p="sort">📈 Sorted</button><button class="s" data-p="rev">📉 Reverse Sorted</button><button class="s" data-p="near">⚡ Nearly Sorted</button><button class="s" data-p="dup">♊ Duplicates</button></div></section>
+<section class="c"><div class="row"><button class="p" id="play">▶ Play</button><button id="back">⏮ Step Back</button><button id="next">Step Next ⏭</button><button class="r" id="reset">↺ Reset</button></div>
+<div class="row" style="margin-top:10px"><input type="range" id="pos" min="0" value="0" style="flex:1"><b id="stp"></b></div>
+<div class="row"><span class="sm">Speed:</span><input type="range" id="spd" min="0.25" max="4" step="0.25" value="1"><span id="sl" class="sm">1.0x (Normal)</span><label class="sm"><input type="checkbox" id="snd"> 🔊 Sound</label></div></section>
+<section class="c" id="msg"><span>💡</span> <span id="mt"></span></section>
+<section class="c"><h3 class="sm" style="text-transform:uppercase">Array Elements &amp; Active Pointers</h3><div class="boxes" id="main"></div>
+<div id="auxw" hidden><div class="sm" style="text-transform:uppercase">Auxiliary Buffer / Working Array</div><div class="boxes" id="aux"></div></div>
+<div class="lg"><span><i style="border-color:var(--un)"></i>Unsorted</span><span><i style="border-color:var(--cm)"></i>Comparing (?)</span><span><i style="border-color:var(--sw)"></i>Swapping / Writing</span><span><i style="border-color:var(--ky)"></i>Pivot / Key</span><span><i style="border-color:var(--g)"></i>Sorted (✓)</span></div></section>
+<section class="c"><h2>📊 Complexity &amp; Operation Metrics</h2><span class="tg" id="tag"></span>
+<div class="m" style="margin:10px 0"><div>Comparisons (C)<b id="mc">0</b></div><div>Swaps / Writes (S)<b id="ms">0</b></div><div>Array Accesses<b id="ma">0</b></div><div>Elapsed Time<b id="me">0 ms</b></div></div>
+<table><thead><tr><th>Best</th><th>Avg</th><th>Worst</th><th>Aux Space</th><th>In-Place</th><th>Stable</th></tr></thead><tbody><tr id="cx"></tr></tbody></table><div id="rc"></div></section>
+<section class="c"><div class="row" style="justify-content:space-between"><h2 id="an">Algorithm</h2><span class="tg">Live Line Tracer</span></div><p class="sm" id="ab"></p><div id="code"></div></section>
+<section class="c"><h2>🌍 Real-Life Examples, Applications &amp; Limitations</h2><span class="tg">Practical Engineering Guide</span>
+<h3 style="margin-top:10px" class="sm">INTUITIVE REAL-LIFE ANALOGY</h3><h3 id="at"></h3><div class="an" id="ax"></div>
+<div class="bu"><h3>💼 Where It Is Used in Industry &amp; Systems:</h3><ul id="us"></ul></div>
+<div class="bu ok"><h3>✅ Key Advantages</h3><ul id="pr"></ul></div><div class="bu no"><h3>⚠️ Drawbacks &amp; Limitations</h3><ul id="cn"></ul></div></section>
+</main>
+<button id="fab">💬 Ask Doubts</button>
+<div id="chat" class="c"><b>🤖 Algorithm Assistant</b><span class="sm">Answers from this page’s built-in notes</span><div id="log"></div><div class="row"><input id="q" type="text" placeholder="e.g. is it stable?" style="flex:1"><button class="p" id="go">Ask</button></div></div>
+<script>
+const P={
+bubble:["procedure BubbleSort(A)","for i := 0 to n-2","  for j := 0 to n-i-2","    if A[j] > A[j+1] then","      swap(A[j], A[j+1])","  mark A[n-i-1] as sorted","  if no swaps: stop early"],
+selection:["procedure SelectionSort(A)","for i := 0 to n-2","  min := i","  for j := i+1 to n-1","    if A[j] < A[min] then min := j","  swap(A[i], A[min])"],
+insertion:["procedure InsertionSort(A)","for i := 1 to n-1","  j := i","  while j > 0 and A[j-1] > A[j]","    swap(A[j-1], A[j]); j := j-1"],
+merge:["procedure MergeSort(A, l, r)","if l >= r then return","m := (l + r) / 2","MergeSort(A,l,m); MergeSort(A,m+1,r)","copy A[l..r] into aux","while i <= m and j <= r","  if aux[i] <= aux[j] then A[k++] := aux[i++]","  else A[k++] := aux[j++]","copy remaining elements"],
+quick:["procedure QuickSort(A, lo, hi)","if lo >= hi then return","pivot := A[hi]; i := lo","for j := lo to hi-1","  if A[j] < pivot then swap(A[i++], A[j])","swap(A[i], A[hi])  // pivot in place","QuickSort(A,lo,i-1); QuickSort(A,i+1,hi)"],
+heap:["procedure HeapSort(A)","  BuildMaxHeap(A)  // O(n)","  for i := length(A)-1 down to 1","    swap(A[0], A[i])  // extract max","    MaxHeapify(A, 0, i)","","procedure MaxHeapify(A, root, size)","  largest := root; l := 2*root+1; r := 2*root+2","  if l < size and A[l] > A[largest] then largest := l","  if r < size and A[r] > A[largest] then largest := r","  if largest != root then swap; MaxHeapify(A, largest, size)"]};
+const I={
+bubble:{n:"1. Bubble Sort (Incremental)",tag:"Comparison / Adjacent Swaps",b:"O(n)",a:"O(n²)",w:"O(n²)",sp:"O(1)",ip:"Yes",st:"Yes",rec:"T(n) = T(n-1) + O(n)",ab:"Repeatedly compares adjacent elements and swaps them if out of order, so the largest value bubbles to the end each pass.",at:["🫧 School Height Line","Students in a line swap places with the neighbour next to them whenever the left one is taller. After each pass the tallest unplaced student has reached the end."],us:["Teaching and algorithm education.","Tiny or nearly sorted lists where simplicity beats speed.","Detecting an already sorted array in one O(n) pass."],pr:["Very simple to implement.","Stable and in-place.","Early exit makes it O(n) on sorted input."],cn:["O(n²) on average and worst case.","Many swaps, so it is far slower than O(n log n) sorts."]},
+selection:{n:"2. Selection Sort (In-Place)",tag:"Comparison / Minimum Selection",b:"O(n²)",a:"O(n²)",w:"O(n²)",sp:"O(1)",ip:"Yes",st:"No",rec:"T(n) = T(n-1) + O(n)",ab:"Finds the minimum of the unsorted part and swaps it into the next position of the sorted prefix.",at:["🃏 Picking the Smallest Card","You scan all the cards in your hand, pick the smallest, and place it at the front. Then you repeat with the cards that remain."],us:["Memory-write-limited devices such as flash storage, since it does at most n-1 swaps.","Small datasets and teaching."],pr:["Minimum number of swaps (at most n-1).","In-place with O(1) memory."],cn:["Always O(n²) comparisons, even on sorted input.","Not stable."]},
+insertion:{n:"3. Insertion Sort (Adaptive)",tag:"Comparison / Adaptive",b:"O(n)",a:"O(n²)",w:"O(n²)",sp:"O(1)",ip:"Yes",st:"Yes",rec:"T(n) = T(n-1) + O(i) → O(n²)",ab:"Grows a sorted prefix by inserting each new element into its correct place, shifting larger elements right.",at:["🃏 Sorting Playing Cards","You pick up cards one at a time and slide each into the right position among the cards already in your hand."],us:["Small subarrays inside hybrid sorts such as Timsort and introsort.","Data that arrives online and is nearly sorted."],pr:["Excellent on small or nearly sorted data.","Stable, in-place and online."],cn:["O(n²) on reversed or random large inputs."]},
+merge:{n:"4. Merge Sort (Divide & Conquer)",tag:"Divide & Conquer",b:"O(n log n)",a:"O(n log n)",w:"O(n log n)",sp:"O(n)",ip:"No",st:"Yes",rec:"T(n) = 2T(n/2) + O(n) = O(n log n)",ab:"Splits the array in half, sorts each half recursively, then merges the two sorted halves using an auxiliary buffer.",at:["📚 Merging Two Sorted Piles","Two friends each sort half of a pile of exam papers. You then merge the two sorted piles by always taking the smaller top paper."],us:["External sorting of data larger than memory.","Sorting linked lists and stable sorting in libraries (Java objects, Python’s Timsort).","Parallel and distributed sorting."],pr:["Guaranteed O(n log n).","Stable and predictable."],cn:["Needs O(n) extra memory.","Slower than quicksort in practice on small arrays."]},
+quick:{n:"5. Quick Sort (Partitioning)",tag:"Divide & Conquer / Partitioning",b:"O(n log n)",a:"O(n log n)",w:"O(n²)",sp:"O(log n)",ip:"Yes",st:"No",rec:"T(n) = T(k) + T(n-k-1) + O(n)",ab:"Chooses a pivot, partitions the array so smaller values come before it and larger after it, then recurses on both sides.",at:["🏫 Splitting a Class by a Marker","The teacher picks one student as the pivot. Shorter students move to the left, taller ones to the right, and each side repeats the process."],us:["Default in many standard libraries (C qsort, introsort in C++).","General in-memory sorting where speed matters."],pr:["Very fast in practice, with good cache behaviour.","In-place with O(log n) stack."],cn:["O(n²) worst case with poor pivots (for example sorted input with a last-element pivot).","Not stable."]},
+heap:{n:"6. Heap Sort (Max-Heapify)",tag:"Tree-Based / Priority Queue",b:"O(n log n)",a:"O(n log n)",w:"O(n log n)",sp:"O(1)",ip:"Yes",st:"No",rec:"T(n) = Build-Max-Heap(n) + Σ O(log i) = O(n log n)",ab:"Builds a max-heap, then repeatedly swaps the root (maximum) with the last unsorted element and restores the heap.",at:["🏥 Hospital Emergency Room Triage Queue","Patients sit in a priority heap by severity. The most critical patient is always at the top, and once treated the heap rebalances."],us:["Operating-system schedulers and priority queues.","Embedded and safety-critical systems that need a guaranteed O(n log n) bound with O(1) space.","Top-K extraction."],pr:["Guaranteed O(n log n) with O(1) auxiliary memory.","No recursion-stack overflow risk."],cn:["Not stable.","Poor cache locality compared with quicksort."]}};
+function build(k,inp){const a=inp.slice(),n=a.length,st=[];let C=0,S=0,A=0,aux=null;const so=new Set();
+const sn=(l,m,o={})=>st.push({a:a.slice(),aux:aux&&aux.slice(),c:o.c||[],s:o.s||[],k:o.k||[],so:[...so],l,m,C,S,A});
+const cp=(i,j,l,m,k)=>{C++;A+=2;sn(l,m,{c:[i,j],k})};
+const sw=(i,j,l,m)=>{[a[i],a[j]]=[a[j],a[i]];S++;A+=4;sn(l,m,{s:[i,j]})};
+sn(-1,"Ready to visualize. Press Play or use Step Next to trace the algorithm.");
+if(k=="bubble"){for(let i=0;i<n-1;i++){let f=0;for(let j=0;j<n-i-1;j++){cp(j,j+1,3,`Compare A[${j}]=${a[j]} with A[${j+1}]=${a[j+1]}`);if(a[j]>a[j+1]){const m=`${a[j]} > ${a[j+1]}, so swap them`;sw(j,j+1,4,m);f=1}}so.add(n-i-1);sn(5,`A[${n-i-1}] is now in its final position`);if(!f){a.forEach((_,x)=>so.add(x));sn(6,"No swaps in this pass, so the array is sorted");break}}}
+else if(k=="selection"){for(let i=0;i<n-1;i++){let m=i;for(let j=i+1;j<n;j++){cp(m,j,4,`Compare A[${j}]=${a[j]} with current minimum ${a[m]}`);if(a[j]<a[m])m=j}if(m!=i)sw(i,m,5,`Swap minimum ${a[m]} into position ${i}`);else sn(5,`${a[i]} is already the minimum`,{k:[i]});so.add(i)}}
+else if(k=="insertion"){for(let i=1;i<n;i++){let j=i;while(j>0){cp(j-1,j,3,`Compare ${a[j-1]} and ${a[j]}`,[j]);if(a[j-1]>a[j]){sw(j-1,j,4,`${a[j]} is smaller than the one before it, so move it left`);j--}else break}}}
+else if(k=="merge"){const ms=(l,r)=>{if(l>=r)return;const m=(l+r)>>1;sn(2,`Split [${l}..${r}] at index ${m}`);ms(l,m);ms(m+1,r);aux=Array(n).fill(null);for(let x=l;x<=r;x++)aux[x]=a[x];sn(4,`Copy A[${l}..${r}] into the auxiliary buffer`);let i=l,j=m+1,q=l;const w=(v,line,msg)=>{a[q]=v;S++;A++;sn(line,msg,{s:[q]});q++};while(i<=m&&j<=r){C++;A+=2;sn(6,`Compare ${aux[i]} and ${aux[j]}`,{c:[i,j]});if(aux[i]<=aux[j]){w(aux[i],6,`Write ${aux[i]} to A[${q}]`);i++}else{w(aux[j],7,`Write ${aux[j]} to A[${q}]`);j++}}while(i<=m){w(aux[i],8,`Copy remaining ${aux[i]}`);i++}while(j<=r){w(aux[j],8,`Copy remaining ${aux[j]}`);j++}aux=null;sn(8,`Merged [${l}..${r}]`)};ms(0,n-1)}
+else if(k=="quick"){const qs=(lo,hi)=>{if(lo>=hi){if(lo==hi){so.add(lo);sn(1,"Single element is sorted")}return}const p=a[hi];let i=lo;sn(2,`Choose pivot = ${p}`,{k:[hi]});for(let j=lo;j<hi;j++){cp(j,hi,4,`Compare A[${j}]=${a[j]} with pivot ${p}`,[hi]);if(a[j]<p){if(i!=j){const m=`${a[j]} < pivot, swap into position ${i}`;sw(i,j,4,m)}i++}}if(i!=hi)sw(i,hi,5,`Place pivot ${p} at index ${i}`);so.add(i);sn(5,`Pivot ${p} is in its final position ${i}`);qs(lo,i-1);qs(i+1,hi)};qs(0,n-1)}
+else{const hf=(r,size)=>{while(1){let g=r,l=2*r+1,q=l+1;sn(7,`Heapify at index ${r}`,{k:[r]});if(l<size){cp(l,g,8,`Compare left child ${a[l]} with ${a[g]}`);if(a[l]>a[g])g=l}if(q<size){cp(q,g,9,`Compare right child ${a[q]} with ${a[g]}`);if(a[q]>a[g])g=q}if(g==r)break;const m=`Swap ${a[r]} with larger child ${a[g]}`;sw(r,g,10,m);r=g}};sn(1,"Build the max-heap");for(let i=(n>>1)-1;i>=0;i--)hf(i,n);for(let e=n-1;e>0;e--){const m=`Move max ${a[0]} to position ${e}`;sw(0,e,3,m);so.add(e);hf(0,e)}}
+a.forEach((_,x)=>so.add(x));sn(-1,`${I[k].n.slice(3).split(" (")[0]} complete! Worst case time: ${I[k].w}, auxiliary space: ${I[k].sp}. Total comparisons: ${C}.`);return st}
+const $=id=>document.getElementById(id);let alg="heap",inp=[],S=[],ix=0,tm=null,el=0,ac=null;
+$("alg").innerHTML=Object.keys(I).map(k=>`<option value="${k}">${I[k].n}</option>`).join("");$("alg").value=alg;
+const rnd=n=>Array.from({length:n},()=>5+Math.floor(Math.random()*95));
+function preset(p){const n=9;let r;if(p=="rand")r=rnd(n);else if(p=="sort")r=rnd(n).sort((x,y)=>x-y);else if(p=="rev")r=rnd(n).sort((x,y)=>y-x);else if(p=="near"){r=rnd(n).sort((x,y)=>x-y);[r[2],r[3]]=[r[3],r[2]];[r[6],r[7]]=[r[7],r[6]]}else r=[4,7,4,2,7,2,9,4,2];setArr(r)}
+function setArr(r){inp=r;$("inp").value=r.join(", ");$("err").textContent="";load()}
+function load(){stop();S=build(alg,inp);ix=0;el=0;$("pos").max=S.length-1;const d=I[alg];$("an").textContent=d.n.slice(3).split(" (")[0];$("ab").textContent=d.ab;$("tag").textContent=d.tag;
+$("cx").innerHTML=[d.b,d.a,d.w,d.sp,d.ip,d.st].map(x=>`<td>${x}</td>`).join("");$("rc").innerHTML="<b>Recurrence Relation:</b> "+d.rec;
+$("code").innerHTML=P[alg].map((t,i)=>`<div id="l${i}"><span>${i+1}</span>${t.replace(/</g,"&lt;")}</div>`).join("");
+$("at").textContent=d.at[0];$("ax").textContent=d.at[1];for(const[k,e]of[["us","us"],["pr","pr"],["cn","cn"]])$(k).innerHTML=d[e].map(x=>`<li>${x}</li>`).join("");draw()}
+function boxes(el,arr,s,aux){el.innerHTML=arr.map((v,i)=>{let c="";if(v===null){return`<div class="bx"><b style="opacity:.25">–</b>[${i}]</div>`}if(!aux&&s.k.includes(i))c="ky";else if(!aux&&s.s.includes(i))c="sw";else if(s.c.includes(i)&&(aux||!s.aux))c="cm";else if(!aux&&s.so.includes(i))c="so";return`<div class="bx ${c}"><b>${v}</b>[${i}]</div>`}).join("")}
+function draw(){const s=S[ix];boxes($("main"),s.a,s,0);$("auxw").hidden=!s.aux;if(s.aux)boxes($("aux"),s.aux,s,1);
+$("mt").textContent=s.m;$("mc").textContent=s.C;$("ms").textContent=s.S;$("ma").textContent=s.A;$("me").textContent=Math.round(el)+" ms";
+$("pos").value=ix;$("stp").textContent=`Step ${ix+1} of ${S.length}`;
+document.querySelectorAll("#code .on").forEach(e=>e.classList.remove("on"));if(s.l>=0){const e=$("l"+s.l);e.classList.add("on");const c=$("code");c.scrollTop=Math.max(0,e.offsetTop-c.offsetTop-c.clientHeight/2)}
+$("back").disabled=ix==0;$("next").disabled=ix==S.length-1}
+function beep(s){if(!$("snd").checked)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=s.s.length?640:340;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.08)}catch(e){}}
+function stop(){clearTimeout(tm);tm=null;$("play").textContent="▶ Play"}
+function tick(){if(ix>=S.length-1){stop();return}ix++;const d=900/+$("spd").value;el+=d;beep(S[ix]);draw();tm=setTimeout(tick,d)}
+$("play").onclick=()=>{if(tm){stop();return}if(ix>=S.length-1){ix=0;el=0}$("play").textContent="⏸ Pause";tick()};
+$("next").onclick=()=>{stop();if(ix<S.length-1){ix++;draw()}};$("back").onclick=()=>{stop();if(ix>0){ix--;draw()}};
+$("reset").onclick=()=>{stop();ix=0;el=0;draw()};$("pos").oninput=e=>{stop();ix=+e.target.value;draw()};
+$("spd").oninput=e=>{const v=+e.target.value;$("sl").textContent=v.toFixed(1)+"x ("+(v<1?"Slow":v>1?"Fast":"Normal")+")"};
+$("alg").onchange=e=>{alg=e.target.value;load()};
+document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>preset(b.dataset.p));
+$("apply").onclick=()=>{const r=$("inp").value.split(/[,\s]+/).filter(Boolean).map(Number);if(r.length<2||r.length>20||r.some(x=>!Number.isInteger(x)||x<0||x>999)){$("err").textContent="Enter 2–20 integers between 0 and 999.";return}setArr(r)};
+$("fab").onclick=()=>{const c=$("chat");c.style.display=c.style.display=="flex"?"none":"flex";if(!$("log").children.length)say("Hi! Ask me about complexity, stability, space, uses or how the current algorithm works.")};
+function say(t,u){const p=document.createElement("p");p.textContent=t;if(u)p.className="u";$("log").append(p);$("log").scrollTop=1e9}
+function ask(){const q=$("q").value.trim();if(!q)return;$("q").value="";say(q,1);const l=q.toLowerCase(),mk=Object.keys(I).find(k=>l.includes(k)||l.includes(I[k].n.slice(3).split(" (")[0].toLowerCase())),d=I[mk||alg];let r;
+if(/stable/.test(l))r=`${d.n.slice(3).split(" (")[0]} is ${d.st=="Yes"?"":"not "}stable.`;
+else if(/space|memory/.test(l))r=`Auxiliary space: ${d.sp}. In-place: ${d.ip}.`;
+else if(/time|complex|fast|slow|worst|best/.test(l))r=`Best ${d.b}, average ${d.a}, worst ${d.w}. ${d.rec}.`;
+else if(/use|real|where|apply/.test(l))r="Used in: "+d.us.join(" ");
+else if(/pro|advantage|good|why/.test(l))r="Advantages: "+d.pr.join(" ");
+else if(/con|drawback|limit|bad/.test(l))r="Limitations: "+d.cn.join(" ");
+else r=d.ab+" Analogy: "+d.at[1]+" You can also ask about stability, space, time, uses, advantages or drawbacks.";say((mk&&mk!=alg?d.n.slice(3).split(" (")[0]+": ":"")+r)}
+$("go").onclick=ask;$("q").onkeydown=e=>{if(e.key=="Enter")ask()};
+inp=[58,18,97,28,99,36,76,95,98];$("inp").value=inp.join(", ");load();
+</script></body></html>
